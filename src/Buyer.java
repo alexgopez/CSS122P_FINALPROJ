@@ -1,37 +1,57 @@
-class Buyer:
-    def __init__(self, name, profession):
-        self.Name = name
-        self.Profession = profession
-        self.Payment_option = None
-        self.Acquired_property = []
-        self.TCP = 0.0
-        self.Transactions = []
-        self.Remaining = 0.0
+import java.util.List;
 
-    def set_payment_option(self, payment_option):
-        self.Payment_option = payment_option
+public class Buyer {
+    private String buyer;
+    private String profession;
+    private String dateAcquired;
+    private String paymentStatus;
+    private int lotNumber;
+    private int blockNumber;
+    private double tcp;
+    private double totalAmount;
+    private double remainingBalance;
 
-    def add_property(self, lot):
-        self.Acquired_property.append(lot)
-        if self.Payment_option:
-            self.TCP += self.Payment_option.compute_tcp(lot.price)
-            self.Remaining += self.Payment_option.compute_tcp(lot.price)
+    public Buyer(String buyer, String profession, String dateAcquired,
+                 int lotNumber, int blockNumber, double tcp) {
+        this.buyer = buyer;
+        this.profession = profession;
+        this.dateAcquired = dateAcquired;
+        this.lotNumber = lotNumber;
+        this.blockNumber = blockNumber;
+        this.tcp = tcp;
+        this.totalAmount = 0;
+        this.remainingBalance = tcp;
+        updatePaymentStatus();
+    }
 
-    def add_transaction(self, transaction):
-        self.Transactions.append(transaction)
-        self.Remaining -= transaction.amount
-
-    def update_remaining(self, amount):
-        self.Remaining = amount
-
-    def get_info(self):
-        info = {
-            'Name': self.Name,
-            'Profession': self.Profession,
-            'Payment Option': type(self.Payment_option).__name__ if self.Payment_option else None,
-            'Acquired Property': [lot.lot_id for lot in self.Acquired_property],
-            'TCP': self.TCP,
-            'Remaining': self.Remaining,
-            'Transactions': [t.transaction_id for t in self.Transactions]
+    public void updatePayments(List<Transaction> transactions) {
+        totalAmount = 0;
+        for (Transaction t : transactions) {
+            if (t.getBuyer().equals(this)) {  
+                totalAmount += t.getAmountPaid();
+            }
         }
-        return info
+        remainingBalance = tcp - totalAmount;
+        updatePaymentStatus();
+    }
+
+    private void updatePaymentStatus() {
+        if (totalAmount == 0) {
+            paymentStatus = "Not Started";
+        } else if (totalAmount >= tcp) {
+            paymentStatus = "Completed";
+        } else {
+            paymentStatus = "In Progress";
+        }
+    }
+
+    public String getBuyer() { return buyer; }
+    public String getProfession() { return profession; }
+    public String getDateAcquired() { return dateAcquired; }
+    public String getPaymentStatus() { return paymentStatus; }
+    public int getLotNumber() { return lotNumber; }
+    public int getBlockNumber() { return blockNumber; }
+    public double getTcp() { return tcp; }
+    public double getTotalAmount() { return totalAmount; }
+    public double getRemainingBalance() { return remainingBalance; }
+}
